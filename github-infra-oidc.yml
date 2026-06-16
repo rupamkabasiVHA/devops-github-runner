@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: GitHub OIDC Provider and Infra Role
+
+Parameters:
+  GitHubOrg:
+    Type: String
+    Default: rupamkabasiVHA
+
+  RepoName:
+    Type: String
+    Default: devops-github-runner
+
+Resources:
+
+  # ✅ OIDC Provider
+  GitHubOIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+
+  # ✅ Infra Role
+  GitHubInfraRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: github-infra-role
+
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepoName}:ref:refs/heads/main
+
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess   # ✅ start simple (tighten later)
+
+Outputs:
+  InfraRoleArn:
+    Description: IAM Role for GitHub Infra
+    Value: !GetAtt GitHubInfraRole.Arn
+
+  OIDCProviderArn:
+    Value: !Ref GitHubOIDCProvider
