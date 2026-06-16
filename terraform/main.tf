@@ -93,6 +93,7 @@ resource "aws_ecs_service" "service" {
   task_definition = aws_ecs_task_definition.runner.arn
   desired_count   = 1
   launch_type     = "FARGATE"
+  force_new_deployment = true
 
   network_configuration {
     subnets          = ["subnet-046c95f35b512509f", "subnet-067bf3bae8ad9ab7c"]
