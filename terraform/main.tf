@@ -7,6 +7,7 @@ resource "aws_ecr_repository" "runner" {
   name = "devops-runner"
 
   image_tag_mutability = "MUTABLE"
+  force_delete = true
 }
 
 # ✅ ECS Cluster
