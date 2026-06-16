@@ -2,7 +2,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# ✅ ECR Repo
+# ✅ ECR Repo 
 resource "aws_ecr_repository" "runner" {
   name = "devops-runner"
 
